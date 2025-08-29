@@ -1,6 +1,18 @@
 // api/extract-contracts.ts
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { createClient } from '@supabase/supabase-js';
+import { Logtail } from '@logtail/node';
+import * as Sentry from '@sentry/node';
+
+const logger = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN || '');
+const supabase = createClient(
+  process.env.SUPABASE_URL as string,
+  process.env.SUPABASE_SERVICE_ROLE_KEY as string,
+  { auth: { autoRefreshToken: false, persistSession: false } }
+);
+
+Sentry.init({ dsn: process.env.VITE_SENTRY_DSN });
 
 interface ExtractedOffer {
   fournisseur: string;
@@ -30,8 +42,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const token = authHeader.replace('Bearer ', '');
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+  if (authError || !user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
   try {
     const { text, fileName } = req.body;
+
+    await logger.info('extract-contracts called', { user: user.id, fileName });
 
     if (!text) {
       return res.status(400).json({ error: 'Texte manquant' });
@@ -155,7 +179,9 @@ PRIORITÉ: Si c'est un tableau comparatif ou courtier, trouve toutes les lignes/
 
   } catch (error) {
     console.error('❌ Erreur générale:', error);
-    return res.status(500).json({ 
+    await logger.error('extract-contracts error', error as any);
+    Sentry.captureException(error);
+    return res.status(500).json({
       error: 'Erreur interne du serveur',
       details: error instanceof Error ? error.message : 'Erreur inconnue'
     });

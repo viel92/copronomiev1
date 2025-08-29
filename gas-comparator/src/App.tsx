@@ -1,5 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from './components/AuthProvider';
+import { supabase } from './lib/supabaseClient';
 import {
   Download,
   Plus,
@@ -51,6 +54,13 @@ export default function MainAIApp() {
   const [query, setQuery] = useState("");
   const [tvaFixe, setTvaFixe] = useState(0.055);
   const [tvaVar, setTvaVar] = useState(0.2);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -297,7 +307,7 @@ export default function MainAIApp() {
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3">
             {/* Export PDF */}
             {computed.length > 0 && (
@@ -592,8 +602,17 @@ export default function MainAIApp() {
               </div>
             </div>
           </>
-        )}
-      </div>
-    </div>
+            )}
+
+            <Link to="/billing" className="text-sm hover:underline">
+              Abonnement
+            </Link>
+            {user && (
+              <button onClick={handleLogout} className="text-sm hover:underline">
+                Déconnexion
+              </button>
+            )}
+          </div>
+        </div>
   );
 }
