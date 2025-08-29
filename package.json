@@ -6,6 +6,18 @@
     "tesseract.js": "^6.0.1"
   },
   "devDependencies": {
-    "@types/node": "^24.3.0"
+    "@types/node": "^24.3.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.3.2"
+  },
+  "scripts": {
+    "lint": "npm run lint --prefix gas-comparator",
+    "test": "npm test --prefix gas-comparator",
+    "format": "prettier --write .",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,css,md}": "prettier --write"
   }
 }
