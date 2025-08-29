@@ -10,7 +10,6 @@ interface Props {
 
 export default function AIUploadSection({ onDataExtracted, onBack }: Props) {
   const [files, setFiles] = useState<File[]>([]);
-  const [apiKey, setApiKey] = useState('');
   const { processFiles, isProcessing, progress, currentStep, error } = useAIProcessing();
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,7 +19,7 @@ export default function AIUploadSection({ onDataExtracted, onBack }: Props) {
   };
 
   const handleAnalyze = async () => {
-    const offers = await processFiles(files, apiKey || undefined);
+    const offers = await processFiles(files);
     const rows: ProviderRow[] = offers.map(o => ({
       id: o.id || crypto.randomUUID(),
       name: o.fournisseur,
@@ -43,13 +42,6 @@ export default function AIUploadSection({ onDataExtracted, onBack }: Props) {
         <ArrowLeft size={16} /> Retour
       </button>
       <input type="file" multiple onChange={handleFiles} className="block" />
-      <input
-        type="text"
-        placeholder="OpenAI API Key (optionnel)"
-        value={apiKey}
-        onChange={e => setApiKey(e.target.value)}
-        className="border p-2 rounded w-full"
-      />
       <button
         onClick={handleAnalyze}
         disabled={files.length === 0 || isProcessing}
