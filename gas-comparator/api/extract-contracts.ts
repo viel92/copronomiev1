@@ -28,6 +28,8 @@ interface ExtractedOffer {
   consommationReference?: number;
 }
 
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -61,9 +63,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Texte manquant' });
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: 'Clé API OpenAI non configurée sur Vercel' });
+    if (!OPENAI_API_KEY) {
+      return res.status(500).json({ error: 'Clé API OpenAI non configurée sur le serveur' });
     }
 
     console.log(`🔄 Traitement: ${fileName}`);
@@ -79,7 +80,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Authorization': `Bearer ${OPENAI_API_KEY}`
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
