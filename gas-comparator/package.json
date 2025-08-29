@@ -21,7 +21,13 @@
     "react-dom": "^19.1.1",
     "recharts": "^3.1.2",
     "tesseract.js": "^6.0.1",
-    "@supabase/supabase-js": "^2.47.0"
+    "@supabase/supabase-js": "^2.47.0",
+    "@stripe/stripe-js": "^3.4.1",
+    "stripe": "^16.6.0",
+    "react-router-dom": "^6.28.0",
+    "@sentry/react": "^7.120.0",
+    "@logtail/browser": "^0.4.21",
+    "@logtail/node": "^0.4.21"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
@@ -40,6 +46,7 @@
     "typescript-eslint": "^8.39.1",
     "vite": "^7.1.2",
     "@vercel/node": "^3.0.0",
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "@sentry/vite-plugin": "^2.18.1"
   }
 }
