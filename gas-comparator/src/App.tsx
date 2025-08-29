@@ -1,13 +1,12 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Download, 
-  Plus, 
-  RefreshCcw, 
-  Trash2, 
-  Upload, 
-  Sun, 
-  Moon, 
+import {
+  Download,
+  Plus,
+  RefreshCcw,
+  Trash2,
+  Sun,
+  Moon,
   Search,
   TrendingUp,
   Calculator,
@@ -27,6 +26,8 @@ import {
 } from "recharts";
 
 // Types
+import AIUploadSection from "./components/ai/AIUploadSection";
+
 export type ProviderRow = {
   id: string;
   name: string;
@@ -40,216 +41,6 @@ export type ProviderRow = {
   cta: number;
   ticgn: number;
 };
-
-// Composant Upload avec IA
-function AIUploadSection({ onDataExtracted, onBack }: { 
-  onDataExtracted: (data: ProviderRow[]) => void;
-  onBack: () => void;
-}) {
-  const [files, setFiles] = useState<File[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [processingStep, setProcessingStep] = useState('');
-  const [progress, setProgress] = useState(0);
-  const [dragActive, setDragActive] = useState(false);
-  const [apiKey, setApiKey] = useState('');
-
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    const droppedFiles = Array.from(e.dataTransfer.files);
-    setFiles(prev => [...prev, ...droppedFiles]);
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const selectedFiles = Array.from(e.target.files);
-      setFiles(prev => [...prev, ...selectedFiles]);
-    }
-  };
-
-  const processWithAI = async () => {
-    if (!apiKey.trim()) {
-      alert('Veuillez entrer votre clé API OpenAI');
-      return;
-    }
-
-    setIsProcessing(true);
-    
-    const steps = [
-      'Initialisation de l\'IA...',
-      'Lecture des documents...',
-      'Extraction des données...',
-      'Analyse des tarifs...',
-      'Calcul des coûts...',
-      'Génération du comparatif...',
-    ];
-
-    try {
-      for (let i = 0; i < steps.length; i++) {
-        setProcessingStep(steps[i]);
-        setProgress((i + 1) / steps.length * 100);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-      }
-
-      // Simulation de données extraites
-      const extractedData: ProviderRow[] = files.map((file, index) => ({
-        id: crypto.randomUUID(),
-        name: ['ENGIE', 'TotalEnergies', 'Ekwateur', 'Dyneff', 'Gaz de Bordeaux'][index] || `Fournisseur ${index + 1}`,
-        type: ['Fixe 36 mois', 'Fixe 24 mois', 'Fixe 12 mois', 'Variable', 'Fixe 48 mois'][index] || 'Fixe 12 mois',
-        prixMolecule: 35 + Math.random() * 15,
-        cee: 7 + Math.random() * 3,
-        transport: 8 + Math.random() * 2,
-        abonnementF: Math.random() * 5000,
-        distribution: 4500 + Math.random() * 1000,
-        transportAnn: 1000 + Math.random() * 500,
-        cta: 300 + Math.random() * 100,
-        ticgn: 17.16,
-      }));
-
-      onDataExtracted(extractedData);
-      
-    } catch (error) {
-      alert('Erreur lors du traitement IA');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  return (
-    <div className="space-y-8">
-      {/* Header avec bouton retour */}
-      <div className="flex items-center justify-between">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
-        >
-          <ArrowLeft size={20} />
-          Retour
-        </button>
-      </div>
-
-      {/* Configuration API */}
-      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-2xl p-4">
-        <h3 className="font-semibold text-amber-800 dark:text-amber-200 mb-2">Configuration OpenAI</h3>
-        <input
-          type="password"
-          placeholder="Votre clé API OpenAI (sk-...)"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          className="w-full px-4 py-2 border border-amber-300 dark:border-amber-600 rounded-xl bg-white dark:bg-slate-800 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
-        />
-        <p className="text-xs text-amber-600 dark:text-amber-300 mt-2">
-          Votre clé API n'est pas stockée et reste dans votre navigateur
-        </p>
-      </div>
-
-      {/* Zone d'upload */}
-      <div
-        className={`relative rounded-3xl p-8 border-2 border-dashed transition-all duration-300 ${
-          dragActive 
-            ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20' 
-            : 'border-slate-300 dark:border-slate-600 bg-white/50 dark:bg-slate-800/50'
-        } backdrop-blur-sm`}
-        onDragEnter={handleDrag}
-        onDragLeave={handleDrag}
-        onDragOver={handleDrag}
-        onDrop={handleDrop}
-      >
-        <div className="text-center">
-          <div className={`mx-auto w-16 h-16 rounded-2xl flex items-center justify-center mb-4 ${
-            dragActive ? 'bg-emerald-500' : 'bg-emerald-100 dark:bg-emerald-900/30'
-          }`}>
-            <Upload className={`w-8 h-8 ${dragActive ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'}`} />
-          </div>
-          
-          <h3 className="text-xl font-semibold mb-2">Glissez vos contrats ici</h3>
-          <p className="text-slate-600 dark:text-slate-400 mb-4">PDF, images ou documents acceptés</p>
-          
-          <label className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-medium cursor-pointer shadow-lg transition-all">
-            <Upload size={18} />
-            Choisir des fichiers
-            <input
-              type="file"
-              multiple
-              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-          </label>
-        </div>
-      </div>
-
-      {/* Liste des fichiers */}
-      {files.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-lg font-semibold">Fichiers sélectionnés ({files.length})</h3>
-          {files.map((file, index) => (
-            <div key={index} className="flex items-center gap-4 p-4 bg-white/70 dark:bg-slate-800/70 rounded-2xl border border-slate-200/50 dark:border-slate-700/50">
-              <FileText className="text-blue-500" size={20} />
-              <div className="flex-1">
-                <div className="font-medium">{file.name}</div>
-                <div className="text-sm text-slate-500">{(file.size / 1024 / 1024).toFixed(2)} MB</div>
-              </div>
-              <button
-                onClick={() => setFiles(prev => prev.filter((_, i) => i !== index))}
-                className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Bouton de traitement */}
-      {files.length > 0 && !isProcessing && (
-        <div className="text-center">
-          <button
-            onClick={processWithAI}
-            className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl font-semibold shadow-xl transition-all"
-          >
-            <Wand2 size={20} />
-            Analyser avec l'IA
-            <span className="text-emerald-100">({files.length} fichier{files.length > 1 ? 's' : ''})</span>
-          </button>
-        </div>
-      )}
-
-      {/* État de traitement */}
-      {isProcessing && (
-        <div className="text-center">
-          <div className="bg-white/80 dark:bg-slate-800/80 rounded-3xl p-8 backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50">
-            <div className="w-12 h-12 mx-auto mb-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center animate-pulse">
-              <Wand2 className="text-white" size={24} />
-            </div>
-            
-            <h3 className="text-xl font-semibold mb-2">Traitement en cours...</h3>
-            <p className="text-emerald-600 dark:text-emerald-400 font-medium mb-4">{processingStep}</p>
-
-            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
-              <div 
-                className="bg-gradient-to-r from-emerald-500 to-teal-500 h-3 rounded-full transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <div className="text-sm text-slate-600 dark:text-slate-400 mt-2">{Math.round(progress)}%</div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 // Composant principal
 export default function MainAIApp() {
