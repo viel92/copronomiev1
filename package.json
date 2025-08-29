@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "lint": "eslint . && npm --prefix gas-comparator run lint",
+    "test": "npm --prefix gas-comparator test",
+    "format": "prettier . --write"
+  },
   "dependencies": {
     "@vercel/node": "^5.3.17",
     "mammoth": "^1.10.0",
@@ -6,6 +11,9 @@
     "tesseract.js": "^6.0.1"
   },
   "devDependencies": {
-    "@types/node": "^24.3.0"
+    "@types/node": "^24.3.0",
+    "@eslint/js": "^9.33.0",
+    "eslint": "^9.33.0",
+    "prettier": "^3.4.2"
   }
 }
